@@ -10,6 +10,7 @@ dotenv.config();
 
 import inventoryRoutes from './routes/inventoryRoutes.js';
 import prestamosRoutes from './routes/prestamosRoutes.js';
+import authRoutes from './routes/auth.js';
 
 const corsOptions = {
     origin: '*',
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
 
 app.use('/inventario', inventoryRoutes);
 app.use('/prestamos', prestamosRoutes);
+app.use('/auth', authRoutes);
 
 io.on('connection', (socket) => {
     console.log('New client connected', socket.id);

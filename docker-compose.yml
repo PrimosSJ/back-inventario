@@ -9,6 +9,7 @@ services:
       - "4000:4000" # Exponer el puerto del backend
     restart: unless-stopped
     environment:
+      - JWT_SECRET=your_jwt_secret # Cambia esto por un secreto seguro
       - NODE_ENV=development
       - MONGO_DB_URI=mongodb://mongo:27017/mydatabase # URL de la base de datos Mongo
     depends_on:
