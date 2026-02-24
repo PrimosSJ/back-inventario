@@ -11,8 +11,16 @@ export const getInventory = async (req, res) => {
 
 export const addItem = async (req, res) => {
     try {
-        const params = req.body;
-        const newObjeto = new Objeto(params, );
+        let params = req.body;
+
+        params.precio = parseInt(params.precio);
+        params.stock = parseInt(params.stock);
+
+        if (params.stock < 0) {
+            return res.status(400).json({ message: 'El stock no puede ser negativo' });
+        }
+
+        const newObjeto = new Objeto(params);
         await newObjeto.save();
         res.status(201).json(newObjeto);
     } catch (error) {
@@ -33,7 +41,15 @@ export const deleteItem = async (req, res) => {
 export const editItem = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, descripcion, precio, categoria, stock } = req.body;
+        let { nombre, descripcion, precio, categoria, stock } = req.body;
+
+        precio = parseInt(precio);
+        stock = parseInt(stock);
+
+        if (stock < 0) {
+            return res.status(400).json({ message: 'El stock no puede ser negativo' });
+        }
+
         const objeto = await Objeto.findByIdAndUpdate(id, { nombre, descripcion, precio, categoria, stock }, { new: true });
         res.json(objeto);
     } catch (error) {
