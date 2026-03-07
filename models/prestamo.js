@@ -5,6 +5,10 @@ const prestamoSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    nombre: {        
+        type: String,
+        required: true
+    },
     id_producto: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Objeto',
@@ -25,6 +29,9 @@ const prestamoSchema = new mongoose.Schema({
     finalizado: {
         type: Boolean,
         default: false
+    },
+    comentario: {
+        type: String
     }
 });
 
