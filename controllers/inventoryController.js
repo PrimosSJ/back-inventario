@@ -50,3 +50,13 @@ export const getItem = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
+
+export const getCategorias = async (req, res) => {
+    try {
+        const categorias = await Objeto.distinct('categoria');
+        res.json(categorias);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
