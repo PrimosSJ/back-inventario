@@ -11,9 +11,9 @@ export const getPrestamos= async (req, res) => {
 }
 
 export const addPrestamo = async (req, res) => {
-    const { rut, id_producto } = req.body;
+    const { rut, nombre, id_producto, comentario} = req.body;
 
-    if (!rut || !id_producto) {
+    if (!rut || !id_producto || !nombre) {
         return res.status(400).json({ message: 'Faltan campos obligatorios' });
     }
 
@@ -24,7 +24,7 @@ export const addPrestamo = async (req, res) => {
         item.stock--;
         await item.save();
 
-        const newPrestamo = new Prestamo({ rut, id_producto, nombre_producto: item.nombre, monto: item.precio });
+        const newPrestamo = new Prestamo({ rut, nombre, id_producto, nombre_producto: item.nombre, monto: item.precio, comentario });
         await newPrestamo.save();
         res.status(201).json(newPrestamo);
 
@@ -91,5 +91,15 @@ export async function getPrestamosRut(req, res) {
         res.json(prestamos);
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+}
+
+export async function getPrestamosPendientes(req, res) {
+    try {
+        const prestamos = await Prestamo.find({ finalizado: false });
+        if (!prestamos) return res.status(404).json({ message: 'No hay prestamos pendientes'});
+        res.json(prestamos);
+    }catch (error){
+        res.status(500).json({ message: error.message });        
     }
 }
