@@ -29,10 +29,7 @@ const io = new Server(server, {
     }
 });
 
-connect(process.env.MONGO_DB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+connect(process.env.MONGO_DB_URI)
 .then(() => console.log('Conectado a la BD del POTO'))
 .catch((error) => console.log('Error al conectar a la BD', error));
 

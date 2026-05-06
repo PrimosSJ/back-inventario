@@ -5,9 +5,16 @@ const prestamoSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    nombre: {        
+    nombre: {
         type: String,
         required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    telefono: {
+        type: String
     },
     id_producto: {
         type: mongoose.Schema.Types.ObjectId,
@@ -18,13 +25,16 @@ const prestamoSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    timestamp: {
-        type: Date,
-        default: Date.now
+    tipo_prestamo: {
+        type: String,
+        required: true,
+        enum: ["publico", "especial"]
     },
-    monto: {
-        type: Number,
-        required: true
+    extension_codigo: {
+        type: String
+    },
+    fecha_devolucion_esperada: {
+        type: Date
     },
     finalizado: {
         type: Boolean,
@@ -33,6 +43,6 @@ const prestamoSchema = new mongoose.Schema({
     comentario: {
         type: String
     }
-});
+}, { timestamps: true });
 
 export default mongoose.model('Prestamo', prestamoSchema);
