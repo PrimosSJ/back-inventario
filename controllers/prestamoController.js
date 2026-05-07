@@ -6,6 +6,7 @@ export const getPrestamos = async (req, res) => {
         const prestamos = await Prestamo.find();
         res.json(prestamos);
     } catch (error) {
+        console.error('Error en getPrestamos:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -17,13 +18,15 @@ export const addPrestamo = async (req, res) => {
         email,
         telefono,
         id_producto,
-        tipo_prestamo,
         extension_codigo,
         fecha_devolucion_esperada,
         comentario
     } = req.body;
 
-    if (!rut || !id_producto || !nombre || !email || !tipo_prestamo) {
+    // Normalize tipo_prestamo with default to avoid validation errors
+    const tipo_prestamo = req.body.tipo_prestamo || "publico";
+
+    if (!rut || !id_producto || !nombre || !email) {
         return res.status(400).json({ message: 'Faltan campos obligatorios' });
     }
 
@@ -73,36 +76,42 @@ export const addPrestamo = async (req, res) => {
             rut,
             nombre,
             email,
-            telefono,
+            telefono: telefono || undefined,
             id_producto,
             nombre_producto: item.nombre,
             tipo_prestamo,
             extension_codigo: extensionCodigoFinal,
-            fecha_devolucion_esperada,
-            comentario
+            fecha_devolucion_esperada: fecha_devolucion_esperada || undefined,
+            comentario: comentario || undefined
         });
         await newPrestamo.save();
         res.status(201).json(newPrestamo);
 
     } catch (error) {
+        console.error('Error en addPrestamo:', error);
         res.status(400).json({ message: error.message });
     }
 }
 
 export async function marcarDevuelto(req, res) {
+    const { id } = req.params;
     try {
-        const { id } = req.params;
         const prestamo = await Prestamo.findById(id);
 
         if (!prestamo) return res.status(404).json({ message: 'Prestamo no encontrado' });
         if (prestamo.finalizado) return res.status(400).json({ message: 'Prestamo ya finalizado' });
 
-        prestamo.finalizado = true;
-        await prestamo.save();
+        // Use updateOne + $set to bypass Mongoose schema validation on legacy documents
+        // that may be missing required fields (tipo_prestamo, nombre_producto, etc.)
+        await Prestamo.updateOne({ _id: id }, { $set: { finalizado: true } });
 
-        const item = await Objeto.findById(prestamo.id_producto);
-        if (item) {
-            if (prestamo.extension_codigo) {
+        // Restore stock/extension in a separate try-catch so a product error
+        // never prevents the loan from being marked as returned
+        try {
+            const item = await Objeto.findById(prestamo.id_producto);
+            if (!item) {
+                console.warn(`Producto no encontrado para préstamo ${id} (id_producto: ${prestamo.id_producto})`);
+            } else if (prestamo.extension_codigo) {
                 const extension = item.extensiones.find(e => e.codigo === prestamo.extension_codigo);
                 if (extension) {
                     extension.disponible = true;
@@ -112,10 +121,13 @@ export async function marcarDevuelto(req, res) {
                 item.stock++;
                 await item.save();
             }
+        } catch (itemError) {
+            console.error(`Error al restaurar stock/extensión para préstamo ${id}:`, itemError);
         }
 
-        res.json(prestamo);
+        res.json({ ...prestamo.toObject(), finalizado: true });
     } catch (error) {
+        console.error('Error en marcarDevuelto:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -126,6 +138,7 @@ export async function getPrestamo(req, res) {
         if (!prestamo) return res.status(404).json({ message: 'Prestamo no encontrado' });
         res.json(prestamo);
     } catch (error) {
+        console.error('Error en getPrestamo:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -135,6 +148,7 @@ export async function getPrestamosRut(req, res) {
         const prestamos = await Prestamo.find({ rut: req.params.rut });
         res.json(prestamos);
     } catch (error) {
+        console.error('Error en getPrestamosRut:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -145,6 +159,7 @@ export async function getPrestamosPendientes(req, res) {
         if (!prestamos) return res.status(404).json({ message: 'No hay prestamos pendientes' });
         res.json(prestamos);
     } catch (error) {
+        console.error('Error en getPrestamosPendientes:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -158,6 +173,7 @@ export async function getPrestamosEspecialesPendientes(req, res) {
         });
         res.json(prestamos);
     } catch (error) {
+        console.error('Error en getPrestamosEspecialesPendientes:', error);
         res.status(500).json({ message: error.message });
     }
 }

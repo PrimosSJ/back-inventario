@@ -5,6 +5,7 @@ export const getInventory = async (req, res) => {
         const inventario = await Objeto.find();
         res.json(inventario);
     } catch (error) {
+        console.error('Error en getInventory:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -55,6 +56,7 @@ export const addItem = async (req, res) => {
         await newObjeto.save();
         res.status(201).json(newObjeto);
     } catch (error) {
+        console.error('Error en addItem:', error);
         res.status(400).json({ message: error.message });
     }
 }
@@ -65,6 +67,7 @@ export const deleteItem = async (req, res) => {
         await Objeto.findByIdAndDelete(id);
         res.json({ message: 'Objeto eliminado' });
     } catch (error) {
+        console.error('Error en deleteItem:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -120,6 +123,7 @@ export const editItem = async (req, res) => {
         const objeto = await Objeto.findByIdAndUpdate(id, update, { new: true });
         res.json(objeto);
     } catch (error) {
+        console.error('Error en editItem:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -130,6 +134,7 @@ export const getItem = async (req, res) => {
         const objeto = await Objeto.findById(id);
         res.json(objeto);
     } catch (err) {
+        console.error('Error en getItem:', err);
         res.status(500).json({ message: err.message });
     }
 }
@@ -139,6 +144,7 @@ export const getCategorias = async (req, res) => {
         const categorias = await Objeto.distinct('categoria');
         res.json(categorias);
     } catch (error) {
+        console.error('Error en getCategorias:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -153,6 +159,7 @@ export const getExtensiones = async (req, res) => {
         }
         res.json(objeto.extensiones);
     } catch (error) {
+        console.error('Error en getExtensiones:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -168,6 +175,7 @@ export const getExtensionesDisponibles = async (req, res) => {
         const disponibles = objeto.extensiones.filter(e => e.disponible);
         res.json(disponibles);
     } catch (error) {
+        console.error('Error en getExtensionesDisponibles:', error);
         res.status(500).json({ message: error.message });
     }
 }
@@ -196,6 +204,7 @@ export const bulkAddItems = async (req, res) => {
             await doc.save();
             creados.push(doc._id);
         } catch (err) {
+            console.error(`Error en bulkAddItems fila ${i + 1}:`, err);
             errores.push({ fila: i + 1, nombre: raw.nombre || '(sin nombre)', error: err.message });
         }
     }
