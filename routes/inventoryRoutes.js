@@ -10,6 +10,7 @@ import {
     getCategorias,
     getExtensiones,
     getExtensionesDisponibles,
+    updateExtensionComentario,
     bulkAddItems
 } from '../controllers/inventoryController.js';
 
@@ -19,6 +20,7 @@ router.post('/bulk', bulkAddItems);
 router.get('/categorias', getCategorias);
 router.get('/:id/extensiones-disponibles', getExtensionesDisponibles);
 router.get('/:id/extensiones', getExtensiones);
+router.patch('/:id/extensiones/:codigo/comentario', updateExtensionComentario);
 router.delete('/:id', deleteItem);
 router.put('/:id', editItem);
 router.get('/:id', getItem);

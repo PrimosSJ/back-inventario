@@ -12,11 +12,10 @@ export const getInventory = async (req, res) => {
 
 export const addItem = async (req, res) => {
     try {
-        const { nombre, descripcion, categoria, tipo, extensiones, tipo_prestamo } = req.body;
+        const { nombre, descripcion, categoria, tipo, extensiones } = req.body;
         let { stock } = req.body;
 
         const itemTipo = tipo || "unitario";
-        const itemTipoPrestamo = tipo_prestamo || "publico";
 
         let extensionesNormalizadas = [];
 
@@ -33,7 +32,8 @@ export const addItem = async (req, res) => {
 
             extensionesNormalizadas = extensiones.map(e => ({
                 codigo: e.codigo,
-                disponible: e.disponible !== undefined ? Boolean(e.disponible) : true
+                disponible: e.disponible !== undefined ? Boolean(e.disponible) : true,
+                comentario: e.comentario || ""
             }));
 
             stock = extensionesNormalizadas.length;
@@ -51,7 +51,6 @@ export const addItem = async (req, res) => {
             stock,
             tipo: itemTipo,
             extensiones: extensionesNormalizadas,
-            tipo_prestamo: itemTipoPrestamo
         });
         await newObjeto.save();
         res.status(201).json(newObjeto);
@@ -75,7 +74,7 @@ export const deleteItem = async (req, res) => {
 export const editItem = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, descripcion, categoria, tipo, extensiones, tipo_prestamo } = req.body;
+        const { nombre, descripcion, categoria, tipo, extensiones } = req.body;
         let { stock } = req.body;
 
         const update = {};
@@ -83,7 +82,6 @@ export const editItem = async (req, res) => {
         if (descripcion !== undefined) update.descripcion = descripcion;
         if (categoria !== undefined) update.categoria = categoria;
         if (tipo !== undefined) update.tipo = tipo;
-        if (tipo_prestamo !== undefined) update.tipo_prestamo = tipo_prestamo;
 
         const tipoFinal = tipo !== undefined
             ? tipo
@@ -103,7 +101,8 @@ export const editItem = async (req, res) => {
 
                 update.extensiones = extensiones.map(e => ({
                     codigo: e.codigo,
-                    disponible: e.disponible !== undefined ? Boolean(e.disponible) : true
+                    disponible: e.disponible !== undefined ? Boolean(e.disponible) : true,
+                    comentario: e.comentario || ""
                 }));
                 update.stock = update.extensiones.length;
             }
@@ -180,6 +179,25 @@ export const getExtensionesDisponibles = async (req, res) => {
     }
 }
 
+export const updateExtensionComentario = async (req, res) => {
+    try {
+        const { id, codigo } = req.params;
+        const { comentario } = req.body;
+
+        const objeto = await Objeto.findOneAndUpdate(
+            { _id: id, "extensiones.codigo": codigo },
+            { $set: { "extensiones.$.comentario": comentario || "" } },
+            { new: true }
+        );
+
+        if (!objeto) return res.status(404).json({ message: 'Item o extensión no encontrado' });
+        res.json(objeto);
+    } catch (error) {
+        console.error('Error en updateExtensionComentario:', error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
 export const bulkAddItems = async (req, res) => {
     const { items } = req.body;
     if (!Array.isArray(items) || items.length === 0) {
@@ -197,7 +215,6 @@ export const bulkAddItems = async (req, res) => {
                 descripcion: raw.descripcion || '',
                 categoria: raw.categoria,
                 tipo: raw.tipo || 'unitario',
-                tipo_prestamo: raw.tipo_prestamo || 'publico',
                 stock: raw.tipo === 'categoria' ? 0 : (parseInt(raw.stock) || 0),
                 extensiones: [],
             });

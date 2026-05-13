@@ -8,6 +8,10 @@ const extensionSchema = new mongoose.Schema({
     disponible: {
         type: Boolean,
         default: true
+    },
+    comentario: {
+        type: String,
+        default: ""
     }
 }, { _id: false });
 
@@ -37,12 +41,6 @@ const objetoSchema = new mongoose.Schema({
     extensiones: {
         type: [extensionSchema],
         default: []
-    },
-    tipo_prestamo: {
-        type: String,
-        required: true,
-        enum: ["publico", "especial"],
-        default: "publico"
     }
 }, { timestamps: true });
 
