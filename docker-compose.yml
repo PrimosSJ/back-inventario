@@ -26,4 +26,7 @@ services:
       - "27017:27017" # Exponer el puerto de MongoDB
     restart: unless-stopped
     volumes:
-      - ./data/mongo:/data/db # Guardar los datos de MongoDB en un volumen persistente
+      - mongo-data:/data/db # Guardar los datos de MongoDB en un volumen persistente
+
+volumes:
+  mongo-data:

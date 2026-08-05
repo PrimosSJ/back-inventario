@@ -4,7 +4,7 @@ API REST Node.js + Express + MongoDB para la Plataforma Optimizada de Trazabilid
 
 ## Requisitos
 
-- Node.js 18+
+- Node.js 20+
 - Docker + Docker Compose (para MongoDB)
 
 ## Configuración
@@ -25,7 +25,7 @@ npm install
 npm start          # servidor en puerto 4000
 ```
 
-O con Docker (backend + MongoDB):
+O con Docker (recomendado):
 
 ```bash
 docker-compose up --build -d
